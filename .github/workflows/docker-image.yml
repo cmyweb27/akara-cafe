@@ -16,42 +16,43 @@ jobs:
           runs-on: ubuntu-latest
 
           steps:
-            - name: Git clone the repository
-              uses: actions/checkout@v4
-            - name: configure aws credentials
-              uses: aws-actions/configure-aws-credentials@v4
-              with:
-                role-to-assume: arn:aws:iam::486731791479:role/github-action-role #change to reflect your IAM role’s ARN
-                role-session-name: github-action-role 
-                aws-region: ${{ env.AWS_REGION }}
-            # Hello from AWS: WhoAmI
-            - name: Sts GetCallerIdentity
-              run: |
-                aws sts get-caller-identity
-            # - name: Configure AWS Credentials
-            #   uses: aws-actions/configure-aws-credentials@v1
+            # - name: Git clone the repository
+            #   uses: actions/checkout@v4
+            # - name: configure aws credentials
+            #   uses: aws-actions/configure-aws-credentials@v4
             #   with:
-            #     aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
-            #     aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-            #     aws-region: us-east-1 
+            #     role-to-assume: arn:aws:iam::486731791479:role/github-action-role #change to reflect your IAM role’s ARN
+            #     role-session-name: github-action-role 
+            #     aws-region: ${{ env.AWS_REGION }}
+            # # Hello from AWS: WhoAmI
+            # - name: Sts GetCallerIdentity
+            #   run: |
+            #     aws sts get-caller-identity
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+                aws-region: us-east-1 
       
-            # - name: Login to Amazon ECR
-            #   id: login-ecr
-            #   uses: aws-actions/amazon-ecr-login@v1
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v1
       
             - name: Build, tag, and push image to Amazon ECR 🏷
               id: build-image
-            #   env:
-            #     ECR_REGISTRY: ""
-            #     ECR_REPOSITORY: "github-action-test"
-            #     IMAGE_TAG: v2
+              env:
+                ECR_REGISTRY: "${{ steps.login-ecr.outputs.registry }}"
+                ECR_REPOSITORY: "private-ecr"
+                IMAGE_TAG: v2
               run: |
-                docker build -t github-action-test2 .
-                docker tag github-action-test2:latest public.ecr.aws/m8w3n4h2/github-action-test2:latest
-                docker push public.ecr.aws/m8w3n4h2/github-action-test2:latest
-            #     # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-            #     # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            #     # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+                # docker build -t github-action-test2 .
+                # docker tag github-action-test2:latest public.ecr.aws/m8w3n4h2/github-action-test2:latest
+                # docker push public.ecr.aws/m8w3n4h2/github-action-test2:latest
+                docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
 #   pull_request:
 #     branches: [ "master" ]

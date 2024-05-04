@@ -5,9 +5,9 @@ on:
     branches: [ "main" ]
 
 
-# permissions:
-#         id-token: write   # This is required for requesting the JWT
-#         contents: read 
+permissions:
+        id-token: write   # This is required for requesting the JWT
+        contents: read 
 jobs:
         BuildAndPushImageToECR:
           name: "Build and Push to ECR"
@@ -27,26 +27,26 @@ jobs:
             #   run: |
             #     aws sts get-caller-identity
 
-            # - name: Configure AWS Credentials
-            #   uses: aws-actions/configure-aws-credentials@v4
-            #   with:
-            #     aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
-            #     aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-            #     aws-region: us-east-1 
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+                aws-region: us-east-1 
       
-            # - name: Login to Amazon ECR
-            #   id: login-ecr
-            #   uses: aws-actions/amazon-ecr-login@v1
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v1
       
-            # - name: Build, tag, and push image to Amazon ECR 🏷
-            #   id: build-image
-            #   env:
-            #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            #     ECR_REPOSITORY: "private-ecr"
-            #     IMAGE_TAG: v1
+            - name: Build, tag, and push image to Amazon ECR 🏷
+              id: build-image
+              env:
+                ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                ECR_REPOSITORY: "private-ecr"
+                IMAGE_TAG: v1
 
-            - uses: actions/checkout@v4
-            - name: Build the Docker image
+            # - uses: actions/checkout@v4
+            # - name: Build the Docker image
               run: docker build . --file Dockerfile --tag my-image-name:$(date +%s) 
                 # docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
                 # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
